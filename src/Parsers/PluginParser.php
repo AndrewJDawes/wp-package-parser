@@ -1,6 +1,6 @@
 <?php
 
-namespace RenVentura\WPPackageParser\Parsers;
+namespace AndrewJDawes\WPPackageParser\Parsers;
 
 /**
  * Class for parsing a WordPress plugin.
@@ -76,9 +76,9 @@ class PluginParser extends Parser
             $pieces = explode(':', array_shift($lines), 2);
             if (array_key_exists($pieces[0], $headerMap)) {
                 if (isset($pieces[1])) {
-                    $headers[ $headerMap[ $pieces[0] ] ] = trim($pieces[1]);
+                    $headers[$headerMap[$pieces[0]]] = trim($pieces[1]);
                 } else {
-                    $headers[ $headerMap[ $pieces[0] ] ] = '';
+                    $headers[$headerMap[$pieces[0]]] = '';
                 }
             }
         } while (trim($pieces[0]) != ''); // Until an empty line is encountered
@@ -108,7 +108,7 @@ class PluginParser extends Parser
                 // Flush the content buffer for the previous section, if any
                 if (! empty($currentSection)) {
                     $sectionContent              = trim(implode("\n", $contentBuffer));
-                    $sections[ $currentSection ] = $sectionContent;
+                    $sections[$currentSection] = $sectionContent;
                 }
 
                 // Start reading a new section
@@ -123,11 +123,11 @@ class PluginParser extends Parser
 
         // Flush the buffer for the last section
         if (! empty($currentSection)) {
-            $sections[ $currentSection ] = trim(implode("\n", $contentBuffer));
+            $sections[$currentSection] = trim(implode("\n", $contentBuffer));
         }
 
         // Apply Markdown to sections
-        $sections = array_map(array( $this, 'applyMarkdown' ), $sections);
+        $sections = array_map(array($this, 'applyMarkdown'), $sections);
         $readme['sections'] = $sections;
 
         return $readme;
@@ -161,7 +161,7 @@ class PluginParser extends Parser
 
         $headers = $this->parseHeaders($fileContents);
 
-        $headers['network'] = ( strtolower($headers['network']) === 'true' );
+        $headers['network'] = (strtolower($headers['network']) === 'true');
 
         // If it doesn't have a name, it's probably not a plugin.
         if (empty($headers['name'])) {

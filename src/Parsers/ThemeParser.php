@@ -1,6 +1,6 @@
 <?php
 
-namespace RenVentura\WPPackageParser\Parsers;
+namespace AndrewJDawes\WPPackageParser\Parsers;
 
 /**
  * Class for parsing a WordPress theme.

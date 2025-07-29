@@ -1,6 +1,6 @@
 <?php
 
-namespace RenVentura\WPPackageParser\Parsers;
+namespace AndrewJDawes\WPPackageParser\Parsers;
 
 use Parsedown;
 
@@ -37,12 +37,12 @@ abstract class Parser
 
         foreach ($headerMap as $field => $prettyName) {
             $found = preg_match('/^[ \t\/*#@]*' . preg_quote($prettyName, '/') . ':(.*)$/mi', $fileContents, $matches);
-            if (( $found > 0 ) && ! empty($matches[1])) {
+            if (($found > 0) && ! empty($matches[1])) {
                 // Strip comment markers and closing PHP tags.
                 $value = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $matches[1]));
-                $headers[ $field ] = $value;
+                $headers[$field] = $value;
             } else {
-                $headers[ $field ] = '';
+                $headers[$field] = '';
             }
         }
 
