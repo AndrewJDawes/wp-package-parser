@@ -1,0 +1,25 @@
+name: Update Packagist
+
+# This workflow sends an API request to Packagist to update the package when changes are pushed
+# Required repository secrets:
+#   - PACKAGIST_API_TOKEN: Your Packagist API token
+# Required repository variables:
+#   - PACKAGIST_PACKAGE_URL: The URL of your package on GitHub (e.g., https://github.com/AndrewJDawes/wp-package-parser)
+
+on:
+  push:
+
+jobs:
+  update-packagist:
+    name: Update package on Packagist
+    runs-on: ubuntu-latest
+    env:
+      API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
+      PACKAGE_URL: ${{ vars.PACKAGIST_PACKAGE_URL }}
+
+    steps:
+      - name: Notify Packagist
+        run: |
+          curl -XPOST -H "content-type:application/json" \
+            "https://packagist.org/api/update-package?username=AndrewJDawes&apiToken=${API_TOKEN}" \
+            -d "{\"repository\":{\"url\":\"${PACKAGE_URL}\"}}"
