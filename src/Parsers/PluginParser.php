@@ -15,13 +15,19 @@ class PluginParser extends Parser
     protected $headerMap = array(
         'name'           => 'Plugin Name',
         'plugin_uri'     => 'Plugin URI',
-        'version'        => 'Version',
         'description'    => 'Description',
+        'version'        => 'Version',
+        'requires_at_least'        => 'Requires at least',
+        'requires_php'        => 'Requires PHP',
         'author'         => 'Author',
         'author_profile' => 'Author URI',
+        'license' => 'License',
+        'license_uri' => 'License URI',
         'text_domain'    => 'Text Domain',
         'domain_path'    => 'Domain Path',
         'network'        => 'Network',
+        'update_uri'     => 'Update URI',
+        'requires_plugins'     => 'Requires Plugins',
     );
 
     /**
