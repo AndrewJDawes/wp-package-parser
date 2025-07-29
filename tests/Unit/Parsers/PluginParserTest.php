@@ -1,9 +1,9 @@
 <?php
 
-namespace RenVentura\WPPackageParser\Tests;
+namespace AndrewJDawes\WPPackageParser\Tests;
 
 use PHPUnit\Framework\TestCase;
-use RenVentura\WPPackageParser\WPPackage;
+use AndrewJDawes\WPPackageParser\WPPackage;
 
 class PluginParserTest extends TestCase
 {

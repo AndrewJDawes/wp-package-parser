@@ -1,8 +1,8 @@
 <?php
 
-namespace RenVentura\WPPackageParser;
+namespace AndrewJDawes\WPPackageParser;
 
-use RenVentura\WPPackageParser\Parsers;
+use AndrewJDawes\WPPackageParser\Parsers;
 use ZipArchive;
 
 /**

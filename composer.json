@@ -1,9 +1,9 @@
 {
-    "name": "renventura/wp-package-parser",
+    "name": "andrewjdawes/wp-package-parser",
     "authors": [
         {
-            "name": "Ren Ventura",
-            "email": "rv@renventura.com"
+            "name": "Andrew Dawes",
+            "email": "andrewjamesdawes@gmail.com"
         }
     ],
     "license": "MIT",
@@ -18,12 +18,12 @@
     },
     "autoload": {
         "psr-4": {
-            "RenVentura\\WPPackageParser\\": "src/"
+            "AndrewJDawes\\WPPackageParser\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "RenVentura\\WPPackageParser\\Tests\\": "tests/"
+            "AndrewJDawes\\WPPackageParser\\Tests\\": "tests/"
         }
     },
     "scripts": {
