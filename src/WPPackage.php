@@ -114,10 +114,10 @@ class WPPackage
         if ($file_name === 'style.css') {
             $theme_parser  = new Parsers\ThemeParser();
             $headers = $theme_parser->parseStyle($content);
-        } else if (str_ends_with($file_name, '.php')) {
+        } elseif (str_ends_with($file_name, '.php')) {
             $plugin_parser = new Parsers\PluginParser();
             $headers = $plugin_parser->parsePlugin($content);
-        } else if ($file_name === 'readme.txt') {
+        } elseif ($file_name === 'readme.txt') {
             $plugin_parser = new Parsers\PluginParser();
             $headers = $plugin_parser->parseReadme($content);
         }
