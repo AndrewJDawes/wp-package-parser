@@ -15,7 +15,7 @@ class WPPackage
      *
      * @var array<string, string>
      */
-    protected $metadata = array();
+    protected $metadata;
 
     /**
      * Package file path.
@@ -48,6 +48,7 @@ class WPPackage
         $this->package_path = $package_path;
         $this->type = $type;
         $this->parse_readme = $parse_readme;
+        $this->metadata = [];
         $this->parse();
     }
 
@@ -77,7 +78,54 @@ class WPPackage
         return $this->metadata;
     }
 
-    /**`
+    private function detectTypeFromFileNameAndContent($file_name, $content): string|null
+    {
+        if ($file_name === 'style.css') {
+            $headers = $this->parseHeadersFromContent($file_name, $content);
+            if ($headers) {
+                return 'theme';
+            }
+        }
+        // if file ends with .php
+        if (str_ends_with($file_name, '.php')) {
+            $headers = $this->parseHeadersFromContent($file_name, $content);
+            if ($headers) {
+                return 'plugin';
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse style.css file.
+     *
+     * @param string $file_name
+     * @param string $content Contents of file
+     *
+     * @return null|array<string, string>
+     */
+    public function parseHeadersFromContent($file_name, $content): null|array
+    {
+        static $headers_by_file_name = [];
+        if (array_key_exists($file_name, $headers_by_file_name)) {
+            return $headers_by_file_name[$file_name];
+        }
+        $headers = null;
+        if ($file_name === 'style.css') {
+            $theme_parser  = new Parsers\ThemeParser();
+            $headers = $theme_parser->parseStyle($content);
+        } else if (str_ends_with($file_name, '.php')) {
+            $plugin_parser = new Parsers\PluginParser();
+            $headers = $plugin_parser->parsePlugin($content);
+        } else if ($file_name === 'readme.txt') {
+            $plugin_parser = new Parsers\PluginParser();
+            $headers = $plugin_parser->parseReadme($content);
+        }
+        $headers_by_file_name[$file_name] = $headers;
+        return $headers;
+    }
+
+    /**
      * Parse package.
      *
      * @return bool
@@ -88,8 +136,7 @@ class WPPackage
             return false;
         }
 
-        $plugin_parser = new Parsers\PluginParser();
-        $theme_parser  = new Parsers\ThemeParser();
+        $readme_metadata = [];
 
         $slug  = null;
         $zip   = $this->openPackage();
@@ -107,50 +154,53 @@ class WPPackage
             $file_name = $file['name'] . '.' . $file['extension'];
             $content   = $zip->getFromIndex($index);
 
-            if ($file['extension'] === 'php' && $this->type !== 'theme') {
-                $headers = $plugin_parser->parsePlugin($content);
-
-                if ($headers) {
-                    //Add plugin file
-                    $plugin_file       = $slug . '/' . $file_name;
-                    $headers['plugin'] = $plugin_file;
-
-                    $this->type     = 'plugin';
-                    $this->metadata = array_merge($this->metadata, $headers);
-                    if (! $this->parse_readme) {
-                        return true;
-                    }
-                }
-
-                continue;
+            if (is_null($this->type)) {
+                $this->type = $this->detectTypeFromFileNameAndContent($file_name, $content);
             }
 
             if ($file_name === 'readme.txt' && $this->parse_readme) {
-                $data = $plugin_parser->parseReadme($content);
+                $data = $this->parseHeadersFromContent($file_name, $content);
+                if (null === $data) {
+                    continue;
+                }
                 unset($data['name']);
                 $data['readme'] = true;
-                $this->metadata = array_merge($data, $this->metadata);
-
+                $readme_metadata = $data;
                 continue;
             }
 
-            if ($file_name === 'style.css' && $this->type !== 'plugin') {
-                $headers = $theme_parser->parseStyle($content);
-                if ($headers) {
-                    $this->type     = 'theme';
-                    $this->metadata = $headers;
+            if ($file['extension'] === 'php' && $this->type === 'plugin') {
+                $headers = $this->parseHeadersFromContent($file_name, $content);
+                if (null === $headers) {
+                    continue;
+                }
+                //Add plugin file
+                $plugin_file       = $slug . '/' . $file_name;
+                $headers['plugin'] = $plugin_file;
+                $this->metadata = array_merge($this->metadata, $headers);
+                if (! $this->parse_readme) {
+                    break;
+                }
+                continue;
+            }
+
+            if ($file_name === 'style.css' && $this->type === 'theme') {
+                $headers = $this->parseHeadersFromContent($file_name, $content);
+                if (null !== $headers) {
+                    $this->metadata = array_merge($this->metadata, $headers);
                 }
                 if (! $this->parse_readme) {
-                    return true;
+                    break;
                 }
+                continue;
             }
         }
 
         if (empty($this->type)) {
-            $this->metadata = array();
-
             return false;
         }
+
+        $this->metadata = array_merge($readme_metadata, $this->metadata);
 
         $this->metadata['slug'] = $slug;
 
