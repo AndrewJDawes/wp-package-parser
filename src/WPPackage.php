@@ -32,13 +32,22 @@ class WPPackage
     private $type = null;
 
     /**
+     * Whether to parse the readme file.
+     *
+     * @var bool
+     */
+    private $parse_readme = true;
+
+    /**
      * Construct a package instance and parse the provided zip file.
      *
      * @param $package_path
      */
-    public function __construct(string $package_path)
+    public function __construct(string $package_path, string|null $type = null, $parse_readme = true)
     {
         $this->package_path = $package_path;
+        $this->type = $type;
+        $this->parse_readme = $parse_readme;
         $this->parse();
     }
 
@@ -68,7 +77,7 @@ class WPPackage
         return $this->metadata;
     }
 
-    /**
+    /**`
      * Parse package.
      *
      * @return bool
@@ -98,7 +107,7 @@ class WPPackage
             $file_name = $file['name'] . '.' . $file['extension'];
             $content   = $zip->getFromIndex($index);
 
-            if ($file['extension'] === 'php') {
+            if ($file['extension'] === 'php' && $this->type !== 'theme') {
                 $headers = $plugin_parser->parsePlugin($content);
 
                 if ($headers) {
@@ -108,12 +117,15 @@ class WPPackage
 
                     $this->type     = 'plugin';
                     $this->metadata = array_merge($this->metadata, $headers);
+                    if (! $this->parse_readme) {
+                        return true;
+                    }
                 }
 
                 continue;
             }
 
-            if ($file_name === 'readme.txt') {
+            if ($file_name === 'readme.txt' && $this->parse_readme) {
                 $data = $plugin_parser->parseReadme($content);
                 unset($data['name']);
                 $data['readme'] = true;
@@ -122,11 +134,14 @@ class WPPackage
                 continue;
             }
 
-            if ($file_name === 'style.css') {
+            if ($file_name === 'style.css' && $this->type !== 'plugin') {
                 $headers = $theme_parser->parseStyle($content);
                 if ($headers) {
                     $this->type     = 'theme';
                     $this->metadata = $headers;
+                }
+                if (! $this->parse_readme) {
+                    return true;
                 }
             }
         }
