@@ -13,7 +13,7 @@ class WPPackage
     /**
      * Metadata.
      *
-     * @var array<string, string>
+     * @var array<string,string>
      */
     protected $metadata;
 
@@ -39,6 +39,11 @@ class WPPackage
     private $parse_readme = true;
 
     /**
+     * @var array<string,null|array<string,string>>
+     */
+    private $headers_by_file_name;
+
+    /**
      * Construct a package instance and parse the provided zip file.
      *
      * @param string $package_path
@@ -51,6 +56,7 @@ class WPPackage
         $this->type = $type;
         $this->parse_readme = $parse_readme;
         $this->metadata = [];
+        $this->headers_by_file_name = [];
         $this->parse();
     }
 
@@ -73,7 +79,7 @@ class WPPackage
     /**
      * Get metadata.
      *
-     * @return array<string, string>
+     * @return array<string,string>
      */
     public function getMetaData(): array
     {
@@ -111,13 +117,12 @@ class WPPackage
      * @param string $file_name
      * @param string $content Contents of file
      *
-     * @return null|array<string, string>
+     * @return null|array<string,string>
      */
     public function parseHeadersFromContent($file_name, $content): null|array
     {
-        static $headers_by_file_name = [];
-        if (array_key_exists($file_name, $headers_by_file_name)) {
-            return $headers_by_file_name[$file_name];
+        if (array_key_exists($file_name, $this->headers_by_file_name)) {
+            return $this->headers_by_file_name[$file_name];
         }
         $headers = null;
         if ($file_name === 'style.css') {
@@ -130,7 +135,7 @@ class WPPackage
             $plugin_parser = new Parsers\PluginParser();
             $headers = $plugin_parser->parseReadme($content);
         }
-        $headers_by_file_name[$file_name] = $headers;
+        $this->headers_by_file_name[$file_name] = $headers;
         return $headers;
     }
 
@@ -231,7 +236,7 @@ class WPPackage
      *
      * @param string $file_name File name.
      *
-     * @return bool|array<string, string>
+     * @return bool|array<string,string>
      */
     private function exploreFile(string $file_name): bool|array
     {
