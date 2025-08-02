@@ -27,7 +27,7 @@ class WPPackage
     /**
      * Package type.
      *
-     * @var string
+     * @var string|null
      */
     private $type = null;
 
@@ -41,9 +41,11 @@ class WPPackage
     /**
      * Construct a package instance and parse the provided zip file.
      *
-     * @param $package_path
+     * @param string $package_path
+     * @param string|null $type
+     * @param bool $parse_readme
      */
-    public function __construct(string $package_path, string|null $type = null, $parse_readme = true)
+    public function __construct(string $package_path, string|null $type = null, bool $parse_readme = true)
     {
         $this->package_path = $package_path;
         $this->type = $type;
@@ -78,7 +80,14 @@ class WPPackage
         return $this->metadata;
     }
 
-    private function detectTypeFromFileNameAndContent($file_name, $content): string|null
+    /**
+     * Attempts to identify package type
+     *
+     * @param string $file_name
+     * @param string $content
+     * @return string|null
+     */
+    private function detectTypeFromFileNameAndContent(string $file_name, string $content): string|null
     {
         if ($file_name === 'style.css') {
             $headers = $this->parseHeadersFromContent($file_name, $content);
@@ -154,7 +163,7 @@ class WPPackage
             $file_name = $file['name'] . '.' . $file['extension'];
             $content   = $zip->getFromIndex($index);
 
-            if (is_null($this->type)) {
+            if (is_null($this->getType())) {
                 $this->type = $this->detectTypeFromFileNameAndContent($file_name, $content);
             }
 
@@ -169,7 +178,7 @@ class WPPackage
                 continue;
             }
 
-            if ($file['extension'] === 'php' && $this->type === 'plugin') {
+            if ($file['extension'] === 'php' && $this->getType() === 'plugin') {
                 $headers = $this->parseHeadersFromContent($file_name, $content);
                 if (null === $headers) {
                     continue;
@@ -184,7 +193,7 @@ class WPPackage
                 continue;
             }
 
-            if ($file_name === 'style.css' && $this->type === 'theme') {
+            if ($file_name === 'style.css' && $this->getType() === 'theme') {
                 $headers = $this->parseHeadersFromContent($file_name, $content);
                 if (null !== $headers) {
                     $this->metadata = array_merge($this->metadata, $headers);
@@ -196,7 +205,7 @@ class WPPackage
             }
         }
 
-        if (empty($this->type)) {
+        if (empty($this->getType())) {
             return false;
         }
 
