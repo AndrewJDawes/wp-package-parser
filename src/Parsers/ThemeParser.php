@@ -15,15 +15,19 @@ class ThemeParser extends Parser
     protected $headerMap = array(
         'name'        => 'Theme Name',
         'theme_uri'   => 'Theme URI',
-        'description' => 'Description',
         'author'      => 'Author',
         'author_uri'  => 'Author URI',
+        'description' => 'Description',
         'version'     => 'Version',
-        'template'    => 'Template',
-        'status'      => 'Status',
-        'tags'        => 'Tags',
+        'requires_at_least' => 'Requires at least',
+        'tested'     => 'Tested up to',
+        'requires_php' => 'Requires PHP',
+        'license'     => 'License',
+        'license_uri' => 'License URI',
         'text_domain' => 'Text Domain',
+        'tags'        => 'Tags',
         'domain_path' => 'Domain Path',
+        'update_uri'  => 'Update URI',
     );
 
     /**
