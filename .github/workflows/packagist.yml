@@ -8,6 +8,7 @@ name: Update Packagist
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   update-packagist:
